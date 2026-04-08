@@ -1,17 +1,17 @@
-import { getErrorMessage } from "@/src/utils"
 import { AxiosError } from "axios"
-import { backendInstance } from "."
+
 import { BASE_URL } from "@/src/constants/common"
+import { getErrorMessage } from "@/src/utils"
+
+import { backendInstance } from "."
+
 
 
 const API_URL = `${BASE_URL}/admin/api/teachers`
 
-type GetTeacherResponse = {
-    
-}
 export default async function getTeacher({ token }: { token: string }) {
   try {
-    const response = await backendInstance.get(API_URL, {
+    await backendInstance.get(API_URL, {
         headers: {
             Authorization: `Bearer ${token}`,
         }

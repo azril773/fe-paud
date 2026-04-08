@@ -1,10 +1,11 @@
 import { Geist, Geist_Mono } from "next/font/google"
-
 import "./globals.css"
+import { ToastContainer } from "react-toastify"
+
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+
 import SidebarApplication from "./_components/sidebar-application"
-import { ToastContainer } from "react-toastify"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 

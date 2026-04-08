@@ -1,23 +1,25 @@
 "use client"
 
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import SidebarLayout from "./sidebar-layout"
+import { Bell, Search } from "lucide-react"
+import { usePathname } from "next/navigation"
+
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Menu, Bell, Search } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
+
+import SidebarLayout from "./sidebar-layout"
 
 export default function SidebarApplication({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { token, decoded } = useAuth()
+  const { decoded } = useAuth()
   const pathname = usePathname()
   return (
     <SidebarProvider>

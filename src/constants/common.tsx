@@ -1,6 +1,5 @@
 import {
     AcademicCapIcon,
-  HomeIcon,
   Square3Stack3DIcon,
 } from "@heroicons/react/16/solid";
 

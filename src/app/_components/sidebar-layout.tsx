@@ -1,5 +1,11 @@
 "use client"
 
+
+
+import { User2 } from "lucide-react"
+import Image from "next/image"
+import { usePathname, useRouter } from "next/navigation"
+
 import {
   Sidebar,
   SidebarContent,
@@ -12,17 +18,9 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { routes } from "@/src/constants/common"
-import {
-  AcademicCapIcon,
-  Square3Stack3DIcon,
-  Cog6ToothIcon,
-} from "@heroicons/react/16/solid"
-import { User2, LogOut } from "lucide-react"
-import Image from "next/image"
-import { usePathname, useRouter } from "next/navigation"
 
 export default function SidebarLayout() {
-  const { token, decoded } = useAuth()
+  const { decoded } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const isActive = (href: string) => pathname.startsWith(href)
