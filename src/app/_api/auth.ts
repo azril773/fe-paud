@@ -47,25 +47,22 @@ export async function login(
   }
 }
 
-export async function verify(
-  token: string
-): Promise<{ success: boolean; error: string }> {
+
+
+export async function logout(): Promise<{ error: string }> {
   try {
-    console.log(token)
     await backendInstance.post(
-      "/auth/verify",
-      {
-        token,
-      },
+      "/auth/logout",
+      {},
       {
         headers: {
           "Content-Type": "application/json",
         },
-      }
-    )
-    return { success: true, error: "" }
+      },
+    );
+    return { error: "" };
   } catch (error) {
-    const err = error as AxiosError
-    return { success: false, error: getErrorMessage(err) }
+    const err = error as AxiosError;
+    return { error: getErrorMessage(err) };
   }
 }

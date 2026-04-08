@@ -1,11 +1,16 @@
 "use client"
 
-
-
-import { User2 } from "lucide-react"
+import { ArrowRightEndOnRectangleIcon } from "@heroicons/react/16/solid"
+import { ChevronDownIcon } from "lucide-react"
 import Image from "next/image"
 import { usePathname, useRouter } from "next/navigation"
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Sidebar,
   SidebarContent,
@@ -16,14 +21,25 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { useAuth } from "@/hooks/use-auth"
-import { routes } from "@/src/constants/common"
+import { DOMAIN, HTTP_SECURE, routes } from "@/src/constants/common"
+import { notification } from "@/src/utils/toast"
+
+import { logout } from "../_api/auth"
+
 
 export default function SidebarLayout() {
-  const { decoded } = useAuth()
   const router = useRouter()
   const pathname = usePathname()
   const isActive = (href: string) => pathname.startsWith(href)
+
+  const handleLogout = async () => {
+    const { error } = await logout()
+    if (error.length > 0) {
+      notification("Error!", error, "error")
+      return
+    }
+    window.location.href = (HTTP_SECURE ? "https://" : "http://") + DOMAIN + "/login"
+  }
   return (
     <Sidebar className="border-none bg-linear-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950">
       <SidebarHeader className="pt-5">
@@ -62,22 +78,41 @@ export default function SidebarLayout() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="border-t border-slate-200 dark:border-slate-800">
-        <SidebarMenu className="gap-1">
-          <SidebarMenuItem >
-            <SidebarMenuButton className="rounded-lg text-slate-700 transition-all p-3 duration-200 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-purple-400 to-pink-400">
-                <User2 size={16} className="text-white" />
-              </div>
-              <div className="ml-2 flex-1 text-left">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white">
-                  {decoded?.username || "Unknown User"}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {"admin@sipintar.id"}
-                </p>
-              </div>
-            </SidebarMenuButton>
+      <SidebarFooter className="border-t px-2 py-4">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton className="h-10 rounded-lg px-3 hover:bg-gray-100">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-400 to-purple-400 text-xs font-bold text-white">
+                    OR
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-semibold">Orang Tua</span>
+                    <span className="text-xs">Akun Saya</span>
+                  </div>
+                  <ChevronDownIcon className="ml-auto h-4 w-4 text-gray-400" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="start" className="w-56">
+                <DropdownMenuItem>
+                  <span>Profil Saya</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>Pengaturan Akun</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <span>Bantuan</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-red-600 focus:bg-red-50 focus:text-red-600"
+                  onClick={handleLogout}
+                >
+                  <ArrowRightEndOnRectangleIcon className="mr-2 h-4 w-4" />
+                  <span>Keluar</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
