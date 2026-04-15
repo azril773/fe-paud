@@ -6,7 +6,8 @@ import { backendInstance } from "."
 
 type ResponseRefresh = {
   access_token: string
-  refrsh_token: string
+  refresh_token?: string
+  refrsh_token?: string
 }
 export async function refreshToken(): Promise<{
   data: ResponseRefresh | null

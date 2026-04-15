@@ -21,24 +21,31 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { DOMAIN, HTTP_SECURE, routes } from "@/src/constants/common"
+import { useAuth } from "@/hooks/use-auth"
+import { routes } from "@/src/constants/common"
+import { clearAccessToken } from "@/src/utils/auth-token"
 import { notification } from "@/src/utils/toast"
-
-import { logout } from "../_api/auth"
 
 
 export default function SidebarLayout() {
   const router = useRouter()
   const pathname = usePathname()
+  const { decoded } = useAuth()
+  const displayName = decoded?.username || "Akun Saya"
+  const displayRole = decoded?.role_name || "Pengguna"
+  const displayInitial =
+    displayName
+      .split(" ")
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((name) => name[0]?.toUpperCase())
+      .join("") || "US"
   const isActive = (href: string) => pathname.startsWith(href)
 
   const handleLogout = async () => {
-    const { error } = await logout()
-    if (error.length > 0) {
-      notification("Error!", error, "error")
-      return
-    }
-    window.location.href = (HTTP_SECURE ? "https://" : "http://") + DOMAIN + "/login"
+    clearAccessToken()
+    notification("Sukses!", "Anda berhasil logout.", "success")
+    router.replace("/login")
   }
   return (
     <Sidebar className="border-none bg-linear-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950">
@@ -85,11 +92,11 @@ export default function SidebarLayout() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton className="h-10 rounded-lg px-3 hover:bg-gray-100">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-400 to-purple-400 text-xs font-bold text-white">
-                    OR
+                    {displayInitial}
                   </div>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-semibold">Orang Tua</span>
-                    <span className="text-xs">Akun Saya</span>
+                    <span className="text-xs font-semibold">{displayName}</span>
+                    <span className="text-xs">{displayRole}</span>
                   </div>
                   <ChevronDownIcon className="ml-auto h-4 w-4 text-gray-400" />
                 </SidebarMenuButton>
