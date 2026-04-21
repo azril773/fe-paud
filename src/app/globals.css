@@ -54,7 +54,7 @@
     --card-foreground: oklch(0.141 0.005 285.823);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.141 0.005 285.823);
-    --primary: oklch(0.852 0.199 91.936);
+    --primary: oklch(50% 0.134 242.749);
     --primary-foreground: oklch(0.421 0.095 57.708);
     --secondary: oklch(0.967 0.001 286.375);
     --secondary-foreground: oklch(0.21 0.006 285.885);
@@ -72,9 +72,9 @@
     --chart-4: oklch(0.508 0.118 165.612);
     --chart-5: oklch(0.432 0.095 166.913);
     --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
+    --sidebar:oklch(98.5% 0 0);
     --sidebar-foreground: oklch(0.141 0.005 285.823);
-    --sidebar-primary: oklch(0.681 0.162 75.834);
+    --sidebar-primary: oklch(50% 0.134 242.749);
     --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
     --sidebar-accent: oklch(0.967 0.001 286.375);
     --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
@@ -117,6 +117,8 @@
 }
 
 @layer base {
+@import url('../../public/fonts/Nunito-Regular.ttf');
+
   * {
     @apply border-border outline-ring/50;
     }
@@ -126,4 +128,10 @@
   html {
     @apply font-sans;
     }
+
+
+}
+
+.nonito{
+    font-family: 'Nunito', sans-serif;
 }

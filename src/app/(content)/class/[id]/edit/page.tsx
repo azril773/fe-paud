@@ -5,6 +5,14 @@ import { useEffect, useEffectEvent, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
 import { getClassById, updateClass } from "@/src/app/_api/class"
 import { searchTeachers } from "@/src/app/_api/teacher"
@@ -123,12 +131,13 @@ export default function EditClassPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Edit Kelas</h1>
-      </div>
+    <div className="space-y-4">
+      <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+        <div className="border-b border-slate-200/70 p-5">
+          <h1 className="text-xl font-semibold text-slate-700">Edit Kelas</h1>
+        </div>
 
-      <div className="max-w-full rounded-lg border bg-white p-6 shadow-sm">
+        <div className="p-6">
         {pageError ? (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {pageError}
@@ -137,28 +146,30 @@ export default function EditClassPage() {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Guru</label>
-            <select
-              className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
+            <Label className="text-gray-600">Guru</Label>
+            <Select
               value={teacherId}
-              onChange={(e) => {
-                setTeacherId(e.target.value)
+              onValueChange={(value) => {
+                setTeacherId(value)
                 handleCheckError("teacher_id")
               }}
-              disabled={isLoading || isLoadingInitial || isLoadingTeacher}
             >
-              <option value="">Pilih guru</option>
-              {teachers.map((teacher) => (
-                <option key={teacher.id} value={teacher.id}>
-                  {teacher.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger disabled={isLoading || isLoadingInitial || isLoadingTeacher}>
+                <SelectValue placeholder="Pilih guru" />
+              </SelectTrigger>
+              <SelectContent>
+                {teachers.map((teacher) => (
+                  <SelectItem key={teacher.id} value={teacher.id}>
+                    {teacher.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {error.teacher_id ? <p className="text-xs text-red-600">{error.teacher_id}</p> : null}
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nama Kelas</label>
+            <Label className="text-gray-600">Nama Kelas</Label>
             <Input
               value={name}
               onChange={(e) => {
@@ -172,7 +183,7 @@ export default function EditClassPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Level</label>
+            <Label className="text-gray-600">Level</Label>
             <Input
               value={level}
               onChange={(e) => {
@@ -186,7 +197,7 @@ export default function EditClassPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Tahun Ajaran</label>
+            <Label className="text-gray-600">Tahun Ajaran</Label>
             <Input
               value={academicYear}
               onChange={(e) => {
@@ -212,11 +223,12 @@ export default function EditClassPage() {
               type="button"
               onClick={handleUpdate}
               disabled={isLoading || isLoadingInitial || isLoadingTeacher}
-              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              className="bg-sky-500 text-white hover:bg-sky-600"
             >
               {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </div>
+        </div>
         </div>
       </div>
     </div>

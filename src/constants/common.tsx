@@ -1,4 +1,8 @@
-import { AcademicCapIcon, Square3Stack3DIcon } from "@heroicons/react/16/solid"
+import {
+  AcademicCapIcon,
+  Cog6ToothIcon,
+  Square3Stack3DIcon,
+} from "@heroicons/react/16/solid"
 
 import { Route } from "@/types/common"
 
@@ -19,6 +23,11 @@ export const routes: Route[] = [
     href: "/dashboard",
     label: "Dashboard",
     icon: <AcademicCapIcon />,
+  },
+  {
+    href: "/setting",
+    label: "Setting",
+    icon: <Cog6ToothIcon />,
   },
   {
     href: "/class",
@@ -46,3 +55,4 @@ export const routes: Route[] = [
     icon: <Square3Stack3DIcon />,
   },
 ]
+

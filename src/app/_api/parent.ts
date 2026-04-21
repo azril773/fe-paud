@@ -12,30 +12,45 @@ type GetParentResponse = {
     total: number;
 }
 
-const API_URL = `${BASE_URL}/admin/api/parents`
+const API_URL = `${BASE_URL}/api/parents`
 
-export async function searchParents({ token }: { token: string }): Promise<{
+export async function searchParents({
+    token,
+    page,
+    perPage,
+    search,
+}: {
+    token: string;
+    page?: number;
+    perPage?: number;
+    search?: string;
+}): Promise<{
     data: Parent[];
     totalPages: number;
     error: string;
 }> {
     try {
+        const params: Record<string, string | number> = {}
+        let effectivePerPage = 10
+
+        if (typeof page === "number") {
+            effectivePerPage = perPage ?? 10
+            params.page = page
+            params.per_page = effectivePerPage
+        }
+        if (search) {
+            params.search = search
+        }
+
         const response = await backendInstance.get(API_URL, {
+            params,
             headers: {
                 Authorization: `Bearer ${token}`,
             }
         })
 
-        if (Array.isArray(response.data)) {
-            return {
-                data: response.data as Parent[],
-                totalPages: 0,
-                error: "",
-            }
-        }
-
         const { data, total }: GetParentResponse = response.data
-        const totalPages = Math.ceil(total / 10)
+        const totalPages = Math.ceil(total / effectivePerPage)
 
         return { data, totalPages, error: "" }
 

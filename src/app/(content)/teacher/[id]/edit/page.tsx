@@ -5,6 +5,7 @@ import { useEffect, useEffectEvent, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useAuth } from "@/hooks/use-auth"
 import { getTeacherById, updateTeacher } from "@/src/app/_api/teacher"
 import { ErroField } from "@/src/types/common"
@@ -101,12 +102,13 @@ export default function EditTeacherPage() {
     }
 
     return (
-        <div className="">
-            <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Edit Guru</h1>
-            </div>
+        <div className="space-y-4">
+            <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+                <div className="border-b border-slate-200/70 p-5">
+                    <h1 className="text-xl font-semibold text-slate-700">Edit Guru</h1>
+                </div>
 
-            <div className="max-w-full rounded-lg border bg-white p-6 shadow-sm">
+                <div className="p-6">
                 {pageError ? (
                     <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                         {pageError}
@@ -115,7 +117,7 @@ export default function EditTeacherPage() {
 
                 <div className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Nama</label>
+                        <Label className="text-gray-600">Nama</Label>
                         <Input
                             value={name}
                             onChange={(e) => {
@@ -129,7 +131,7 @@ export default function EditTeacherPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Email</label>
+                        <Label className="text-gray-600">Email</Label>
                         <Input
                             type="email"
                             value={email}
@@ -144,7 +146,7 @@ export default function EditTeacherPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">No. Telepon</label>
+                        <Label className="text-gray-600">No. Telepon</Label>
                         <Input
                             value={phone}
                             onChange={(e) => {
@@ -158,7 +160,7 @@ export default function EditTeacherPage() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Password</label>
+                        <Label className="text-gray-600">Password</Label>
                         <Input
                             type="password"
                             value={password}
@@ -188,11 +190,12 @@ export default function EditTeacherPage() {
                             type="button"
                             onClick={handleUpdate}
                             disabled={isLoading || isLoadingInitial}
-                            className="bg-emerald-600 text-white hover:bg-emerald-700"
+                            className="bg-sky-500 text-white hover:bg-sky-600"
                         >
                             {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
                         </Button>
                     </div>
+                </div>
                 </div>
             </div>
         </div>

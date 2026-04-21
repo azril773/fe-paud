@@ -49,6 +49,7 @@ export type Parent = {
 export type Class = {
   id: string;
   teacher_id: string;
+  teacher_name?: string;
   paud_id: string;
   name: string;
   level: string;
@@ -71,4 +72,10 @@ export type Student = {
   updated_at: string;
 }
 
+export type CurrentPaud = {
+  id: string
+  name: string
+  subdomain: string
+  status?: string
+}
 export type ErroField = { [key: string]: string };

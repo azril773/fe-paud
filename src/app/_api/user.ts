@@ -31,21 +31,43 @@ type UserDetail = User & {
 };
 
 const API_URL = `${BASE_URL}/api/users`
-const ADMIN_API_URL = `${BASE_URL}/admin/api/users`
 
-export async function searchUsers({ token }: { token: string }) : Promise<{
+export async function searchUsers({
+    token,
+    page,
+    perPage,
+    search,
+}: {
+    token: string
+    page?: number
+    perPage?: number
+    search?: string
+}) : Promise<{
     data: User[];
     totalPages: number;
     error: string;
 }> {
     try {
+        const effectivePerPage = perPage ?? (typeof page === "number" ? 10 : undefined)
+        const params: Record<string, string | number> = {}
+        if (typeof page === "number") {
+            params.page = page
+        }
+        if (typeof effectivePerPage === "number") {
+            params.per_page = effectivePerPage
+        }
+        if (search) {
+            params.search = search
+        }
+
         const response = await backendInstance.get(API_URL, {
+            params,
             headers: {
             Authorization: `Bearer ${token}`,
         }
         });
         const { users, total }: GetUsersResponse = response.data;
-        const totalPages = Math.ceil(total / 10);
+        const totalPages = effectivePerPage ? Math.ceil(total / effectivePerPage) : 0;
         return { data: users, totalPages, error: "" };   
     } catch (err) {
         const error = err as AxiosError;
@@ -98,7 +120,7 @@ export async function getUserById({
     userId: string;
 }): Promise<{ data: UserDetail | null; error: string }> {
     try {
-        const response = await backendInstance.get(`${ADMIN_API_URL}/${userId}`, {
+        const response = await backendInstance.get(`${API_URL}/${userId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -131,7 +153,7 @@ export async function updateUser({
 }): Promise<{ error: string }> {
     try {
         await backendInstance.put(
-            `${ADMIN_API_URL}/${userId}`,
+            `${API_URL}/${userId}`,
             {
                 name,
                 email,
@@ -161,7 +183,7 @@ export async function deleteUser({
     userId: string;
 }): Promise<{ error: string }> {
     try {
-        await backendInstance.delete(`${ADMIN_API_URL}/${userId}`, {
+        await backendInstance.delete(`${API_URL}/${userId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

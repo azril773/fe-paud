@@ -1,27 +1,123 @@
 "use client"
 
+import { BookUser, Search, UserRoundCog } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useEffect, useEffectEvent, useState } from "react"
 
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ListPageToolbar } from "@/components/ui/list-page-toolbar"
+import { searchAdminTeachers } from "@/src/app/_api/teacher"
+import { getAccessToken } from "@/src/utils/auth-token"
 
 import TeacherTable from "./_components/teacher-table"
 
+type TeacherStats = {
+  totalTeachers: number
+}
+
 export default function TeacherPage() {
   const router = useRouter()
+  const [searchInput, setSearchInput] = useState<string>("")
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("")
+  const [stats, setStats] = useState<TeacherStats>({
+    totalTeachers: 0,
+  })
+
+  const loadStats = useEffectEvent(async () => {
+    const token = getAccessToken()
+    if (!token) {
+      return
+    }
+
+    const { totalPages, error } = await searchAdminTeachers({
+      token,
+      page: 1,
+      perPage: 1,
+    })
+
+    if (error) {
+      return
+    }
+
+    setStats({
+      totalTeachers: totalPages,
+    })
+  })
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchInput)
+    }, 400)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [searchInput])
+
+  useEffect(() => {
+    loadStats()
+  }, [])
 
   return (
-    <div>
-      <div className="mb-5 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Data Guru</h1>
-        <Button
-          className="bg-emerald-600 text-white hover:bg-emerald-700"
-          onClick={() => router.push("/teacher/create")}
-        >
-          Create Teacher
-        </Button>
+    <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Card className="group relative overflow-hidden border-slate-200/80 bg-linear-to-br from-white via-sky-50/40 to-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-sky-200/40 blur-2xl" />
+          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-600">Total Guru</CardTitle>
+            <div className="rounded-lg bg-sky-100 p-2 text-sky-700 ring-1 ring-sky-200">
+              <BookUser className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative">
+            <p className="text-2xl font-bold tracking-tight text-slate-900">{stats.totalTeachers}</p>
+            <p className="mt-1 text-xs text-slate-500">Jumlah seluruh data guru</p>
+          </CardContent>
+        </Card>
+
+        <Card className="group relative overflow-hidden border-emerald-200/70 bg-linear-to-br from-white via-emerald-50/40 to-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-200/40 blur-2xl" />
+          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-600">Pencarian</CardTitle>
+            <div className="rounded-lg bg-emerald-100 p-2 text-emerald-700 ring-1 ring-emerald-200">
+              <Search className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative">
+            <p className="truncate text-xl font-bold tracking-tight text-emerald-700">
+              {debouncedSearch || "Semua data"}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">Filter nama atau email guru</p>
+          </CardContent>
+        </Card>
+
+        <Card className="group relative overflow-hidden border-amber-200/70 bg-linear-to-br from-white via-amber-50/40 to-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+          <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-amber-200/40 blur-2xl" />
+          <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-600">Per Halaman</CardTitle>
+            <div className="rounded-lg bg-amber-100 p-2 text-amber-700 ring-1 ring-amber-200">
+              <UserRoundCog className="h-4 w-4" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative">
+            <p className="text-2xl font-bold tracking-tight text-amber-700">10</p>
+            <p className="mt-1 text-xs text-slate-500">Jumlah guru tampil tiap halaman</p>
+          </CardContent>
+        </Card>
       </div>
 
-      <TeacherTable />
+      <div className="w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+        <ListPageToolbar
+          title="Data Guru"
+          searchValue={searchInput}
+          onSearchChange={setSearchInput}
+          searchPlaceholder="Cari nama atau email guru..."
+          createLabel="Create Teacher"
+          onCreateClick={() => router.push("/teacher/create")}
+        />
+
+        <TeacherTable search={debouncedSearch} currentPage={1} />
+      </div>
     </div>
   )
 }

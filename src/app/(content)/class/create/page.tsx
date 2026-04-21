@@ -5,6 +5,8 @@ import { useEffect, useEffectEvent, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 import { useAuth } from "@/hooks/use-auth"
 import { createClass } from "@/src/app/_api/class"
 import { searchTeachers } from "@/src/app/_api/teacher"
@@ -94,12 +96,13 @@ export default function CreateClassPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Buat Kelas</h1>
-      </div>
+    <div className="space-y-4">
+      <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+        <div className="border-b border-slate-200/70 p-5">
+          <h1 className="text-xl font-semibold text-slate-700">Buat Kelas</h1>
+        </div>
 
-      <div className="max-w-full rounded-lg border bg-white p-6 shadow-sm">
+        <div className="p-6">
         {pageError ? (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {pageError}
@@ -108,28 +111,23 @@ export default function CreateClassPage() {
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Guru</label>
-            <select
-              className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
+
+            <SearchableSelect
+              label="Guru"
+              items={teachers.map((teacher) => ({ id: teacher.id, name: teacher.name }))}
               value={teacherId}
-              onChange={(e) => {
-                setTeacherId(e.target.value)
+              onChange={(value) => {
+                setTeacherId(value)
                 handleCheckError("teacher_id")
               }}
+              placeholder="Pilih guru"
               disabled={isLoading || isLoadingTeacher}
-            >
-              <option value="">Pilih guru</option>
-              {teachers.map((teacher) => (
-                <option key={teacher.id} value={teacher.id}>
-                  {teacher.name}
-                </option>
-              ))}
-            </select>
-            {error.teacher_id ? <p className="text-xs text-red-600">{error.teacher_id}</p> : null}
+            />
+             {error.teacher_id ? <p className="text-xs text-red-600">{error.teacher_id}</p> : null}
           </div>
-
+       
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nama Kelas</label>
+            <Label className="text-gray-600">Nama Kelas</Label>
             <Input
               value={name}
               onChange={(e) => {
@@ -143,7 +141,7 @@ export default function CreateClassPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Level</label>
+            <Label className="text-gray-600">Level</Label>
             <Input
               value={level}
               onChange={(e) => {
@@ -157,7 +155,7 @@ export default function CreateClassPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Tahun Ajaran</label>
+            <Label className="text-gray-600">Tahun Ajaran</Label>
             <Input
               value={academicYear}
               onChange={(e) => {
@@ -183,11 +181,12 @@ export default function CreateClassPage() {
               type="button"
               onClick={handleCreate}
               disabled={isLoading || isLoadingTeacher}
-              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              className="bg-sky-500 text-white hover:bg-sky-600"
             >
               {isLoading ? "Menyimpan..." : "Buat Kelas"}
             </Button>
           </div>
+        </div>
         </div>
       </div>
     </div>

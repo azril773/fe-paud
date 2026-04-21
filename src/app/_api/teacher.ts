@@ -12,7 +12,6 @@ type GetTeachersResponse = {
 }
 
 const API_URL = `${BASE_URL}/api/teachers`
-const ADMIN_API_URL = `${BASE_URL}/admin/api/teachers`
 
 export async function searchTeachers({ token }: { token: string }): Promise<{
   data: Teacher[]
@@ -36,6 +35,51 @@ export async function searchTeachers({ token }: { token: string }): Promise<{
   }
 }
 
+export async function searchAdminTeachers({
+  token,
+  page,
+  perPage,
+  search,
+}: {
+  token: string
+  page?: number
+  perPage?: number
+  search?: string
+}): Promise<{
+  data: Teacher[]
+  totalPages: number
+  error: string
+}> {
+  try {
+    const params: Record<string, string | number> = {}
+    let effectivePerPage = 10
+
+    if (typeof page === "number") {
+      effectivePerPage = perPage ?? 10
+      params.page = page
+      params.per_page = effectivePerPage
+    }
+    if (search) {
+      params.search = search
+    }
+
+    const response = await backendInstance.get(API_URL, {
+      params,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    const { teachers, total }: GetTeachersResponse = response.data
+    const totalPages = Math.ceil(total / effectivePerPage)
+
+    return { data: teachers, totalPages, error: "" }
+  } catch (err) {
+    const error = err as AxiosError
+    return { data: [], totalPages: 0, error: getErrorMessage(error) }
+  }
+}
+
 export async function createTeacher({
   token,
   name,
@@ -51,7 +95,7 @@ export async function createTeacher({
 }): Promise<{ data: Teacher | null; error: string }> {
   try {
     const response = await backendInstance.post(
-      ADMIN_API_URL,
+      API_URL,
       {
         name,
         email,
@@ -81,7 +125,7 @@ export async function getTeacherById({
   teacherId: string
 }): Promise<{ data: Teacher | null; error: string }> {
   try {
-    const response = await backendInstance.get(`${ADMIN_API_URL}/${teacherId}`, {
+    const response = await backendInstance.get(`${API_URL}/${teacherId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -112,7 +156,7 @@ export async function updateTeacher({
 }): Promise<{ error: string }> {
   try {
     await backendInstance.put(
-      `${ADMIN_API_URL}/${teacherId}`,
+      `${API_URL}/${teacherId}`,
       {
         name,
         email,
@@ -141,7 +185,7 @@ export async function deleteTeacher({
   teacherId: string
 }): Promise<{ error: string }> {
   try {
-    await backendInstance.delete(`${ADMIN_API_URL}/${teacherId}`, {
+    await backendInstance.delete(`${API_URL}/${teacherId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

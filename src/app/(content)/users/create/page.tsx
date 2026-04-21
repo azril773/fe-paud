@@ -5,6 +5,8 @@ import { useEffect, useEffectEvent, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { SearchableSelect } from "@/components/ui/searchable-select"
 import { useAuth } from "@/hooks/use-auth"
 import { type Role, searchRoles } from "@/src/app/_api/role"
 import { createUser } from "@/src/app/_api/user"
@@ -86,103 +88,97 @@ export default function CreateUserPage() {
     }
 
     return (
-        <div className="">
-            <div className="mb-6 flex items-center justify-between">
-                <h1 className="text-2xl font-bold">Buat User</h1>
-            </div>
+        <div className="space-y-4">
+            <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+                <div className="border-b border-slate-200/70 p-5">
+                    <h1 className="text-xl font-semibold text-slate-700">Buat User</h1>
+                </div>
 
-                <div className="max-w-full rounded-lg border bg-white p-6 shadow-sm">
-            
-                    {pageError ? (
-                        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                            {pageError}
-                        </div>
-                    ) : null}
+                <div className="p-6">
+                {pageError ? (
+                    <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        {pageError}
+                    </div>
+                ) : null}
 
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Nama</label>
-                            <Input
-                                value={name}
-                                onChange={(e) => {
-                                    setName(e.target.value)
-                                    handleCheckError("name")
-                                }}
-                                placeholder="Masukkan nama"
-                                disabled={isLoading}
-                            />
-                            {error.name ? <p className="text-xs text-red-600">{error.name}</p> : null}
-                        </div>
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label className="text-gray-600">Nama</Label>
+                        <Input
+                            value={name}
+                            onChange={(e) => {
+                                setName(e.target.value)
+                                handleCheckError("name")
+                            }}
+                            placeholder="Masukkan nama"
+                            disabled={isLoading}
+                        />
+                        {error.name ? <p className="text-xs text-red-600">{error.name}</p> : null}
+                    </div>
+                     <div className="space-y-2">
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Email</label>
-                            <Input
-                                type="email"
-                                value={email}
-                                onChange={(e) => {
-                                    setEmail(e.target.value)
-                                    handleCheckError("email")
-                                }}
-                                placeholder="Masukkan email"
-                                disabled={isLoading}
-                            />
-                            {error.email ? <p className="text-xs text-red-600">{error.email}</p> : null}
-                        </div>
+                        <SearchableSelect
+                            label="Role"
+                            placeholder="pilih role"
+                            items={roles}
+                            onChange={setRoleId}
+                            value={roleId}
+                            disabled={isLoading}
+                        />
+                        {error.role ? <p className="text-xs text-red-600">{error.role}</p> : null}
+                        {selectedRole && (
+                            <p className="text-xs text-slate-500">Role terpilih: {selectedRole.name}</p>
+                        )}
+                    </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Password</label>
-                            <Input
-                                type="password"
-                                value={password}
-                                onChange={(e) => {
-                                    setPassword(e.target.value)
-                                    handleCheckError("password")
-                                }}
-                                placeholder="Masukkan password"
-                                disabled={isLoading}
-                            />
-                            {error.password ? <p className="text-xs text-red-600">{error.password}</p> : null}
-                        </div>
+                    <div className="space-y-2">
+                        <Label className="text-gray-600">Email</Label>
+                        <Input
+                            type="email"
+                            value={email}
+                            onChange={(e) => {
+                                setEmail(e.target.value)
+                                handleCheckError("email")
+                            }}
+                            placeholder="Masukkan email"
+                            disabled={isLoading}
+                        />
+                        {error.email ? <p className="text-xs text-red-600">{error.email}</p> : null}
+                    </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Role</label>
-                            <select
-                                className="h-9 w-full rounded-3xl border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
-                                value={roleId}
-                                onChange={(e) => {
-                                    setRoleId(e.target.value)
-                                    handleCheckError("role")
-                                }}
-                                disabled={isLoading}
-                            >
-                                <option value="">Pilih role</option>
-                                {roles.map((role) => (
-                                    <option key={role.id} value={role.id}>
-                                        {role.name}
-                                    </option>
-                                ))}
-                            </select>
-                            {error.role ? <p className="text-xs text-red-600">{error.role}</p> : null}
-                            {selectedRole && (
-                                <p className="text-xs text-slate-500">Role terpilih: {selectedRole.name}</p>
-                            )}
-                        </div>
+                    <div className="space-y-2">
+                        <Label className="text-gray-600">Password</Label>
+                        <Input
+                            type="password"
+                            value={password}
+                            onChange={(e) => {
+                                setPassword(e.target.value)
+                                handleCheckError("password")
+                            }}
+                            placeholder="Masukkan password"
+                            disabled={isLoading}
+                        />
+                        {error.password ? <p className="text-xs text-red-600">{error.password}</p> : null}
+                    </div>
 
-                        <div className="flex gap-3 pt-4">
-                            <Button type="button" variant="outline" onClick={() => router.push("/users")} disabled={isLoading}>
-                                Batal
-                            </Button>
-                            <Button
-                                type="button"
-                                onClick={handleCreate}
-                                disabled={isLoading}
-                                className="bg-emerald-600 text-white hover:bg-emerald-700"
-                            >
-                                {isLoading ? "Menyimpan..." : "Buat User"}
-                            </Button>
-                        </div>
+                   
+
+                    <div className="flex gap-3 pt-4">
+                        <Button type="button" variant="outline" onClick={() => router.push("/users")} disabled={isLoading}>
+                            Batal
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleCreate}
+                            disabled={isLoading}
+                            className="bg-sky-500 text-white hover:bg-sky-600"
+                        >
+                            {isLoading ? "Menyimpan..." : "Buat User"}
+                        </Button>
                     </div>
                 </div>
+                </div>
+            </div>
         </div>
     )
 }

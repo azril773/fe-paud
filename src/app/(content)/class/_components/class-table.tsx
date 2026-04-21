@@ -1,8 +1,11 @@
 "use client"
 
+import { Edit, Trash2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useEffectEvent, useState } from "react"
 
+import { Button } from "@/components/ui/button"
+import { PaginationControls } from "@/components/ui/pagination-controls"
 import {
   Table,
   TableBody,
@@ -12,49 +15,51 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { deleteClass, searchClasses } from "@/src/app/_api/class"
-import { searchTeachers } from "@/src/app/_api/teacher"
-import { Class, Teacher } from "@/src/types/common"
+import { Class } from "@/src/types/common"
 import { getAccessToken } from "@/src/utils/auth-token"
 import { notification } from "@/utils/toast"
 
-export default function ClassTable() {
+type ClassTableProps = {
+  search?: string
+  currentPage: number
+}
+
+export default function ClassTable({ search, currentPage: initialPage }: ClassTableProps) {
   const router = useRouter()
   const [classData, setClassData] = useState<Class[]>([])
-  const [teacherMap, setTeacherMap] = useState<Record<string, string>>({})
   const [deletingId, setDeletingId] = useState<string>("")
+  const [currentPage, setCurrentPage] = useState<number>(initialPage || 1)
+  const [totalPages, setTotalPages] = useState(0)
+  const perPage = 10
 
-  const loadData = useEffectEvent(async () => {
+  const loadData = useEffectEvent(async (page: number) => {
     const token = getAccessToken()
     if (!token) {
       return
     }
 
-    const [classResult, teacherResult] = await Promise.all([
-      searchClasses({ token }),
-      searchTeachers({ token }),
-    ])
+    const classResult = await searchClasses({ token, page, perPage, search })
 
     if (classResult.error) {
       notification("Error!", classResult.error, "error")
       return
     }
-    if (teacherResult.error) {
-      notification("Error!", teacherResult.error, "error")
-      return
-    }
 
-    const nextTeacherMap: Record<string, string> = {}
-    teacherResult.data.forEach((teacher: Teacher) => {
-      nextTeacherMap[teacher.id] = teacher.name
-    })
-
-    setTeacherMap(nextTeacherMap)
     setClassData(classResult.data)
+    setTotalPages(classResult.totalPages)
+
+    if (classResult.totalPages > 0 && page > classResult.totalPages) {
+      setCurrentPage(classResult.totalPages)
+    }
   })
 
   useEffect(() => {
-    loadData()
-  }, [])
+    setCurrentPage(1)
+  }, [search])
+
+  useEffect(() => {
+    loadData(currentPage)
+  }, [currentPage, search])
 
   const handleDelete = (classId: string) => async () => {
     const token = getAccessToken()
@@ -78,55 +83,80 @@ export default function ClassTable() {
     }
 
     notification("Sukses!", "Kelas berhasil dihapus.", "success")
-    loadData()
+    if (classData.length === 1 && currentPage > 1) {
+      setCurrentPage((prev) => prev - 1)
+      return
+    }
+
+    loadData(currentPage)
   }
 
   return (
-    <div className="rounded-lg border">
-      <Table className="[--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
-        <TableHeader>
-          <TableRow>
-            <TableHead>No</TableHead>
-            <TableHead>Nama Kelas</TableHead>
-            <TableHead>Level</TableHead>
-            <TableHead>Tahun Ajaran</TableHead>
-            <TableHead>Guru</TableHead>
-            <TableHead>Dibuat Pada</TableHead>
-            <TableHead>Diperbarui Pada</TableHead>
-            <TableHead>Aksi</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {classData.map((item, index) => (
-            <TableRow key={item.id}>
-              <TableCell>{index + 1}</TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.level}</TableCell>
-              <TableCell>{item.academic_year}</TableCell>
-              <TableCell>{teacherMap[item.teacher_id] || "-"}</TableCell>
-              <TableCell>{new Date(item.created_at).toLocaleDateString()}</TableCell>
-              <TableCell>{new Date(item.updated_at).toLocaleDateString()}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => router.push(`/class/${item.id}/edit`)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={handleDelete(item.id)}
-                    className="text-red-500 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-                    disabled={deletingId === item.id}
-                  >
-                    {deletingId === item.id ? "Menghapus..." : "Hapus"}
-                  </button>
-                </div>
-              </TableCell>
+    <div className="space-y-3">
+      <div className="w-full overflow-hidden rounded-sm border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm dark:border-slate-800/70 dark:bg-slate-900/70">
+        <Table className="[--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="pl-10 text-[0.9rem] text-gray-600">No</TableHead>
+              <TableHead className="text-[0.9rem] text-gray-600">Nama Kelas</TableHead>
+              <TableHead className="text-[0.9rem] text-gray-600">Level</TableHead>
+              <TableHead className="text-[0.9rem] text-gray-600">Tahun Ajaran</TableHead>
+              <TableHead className="text-[0.9rem] text-gray-600">Guru</TableHead>
+              <TableHead className="text-[0.9rem] text-gray-600">Dibuat Pada</TableHead>
+              <TableHead className="text-[0.9rem] text-gray-600">Diperbarui Pada</TableHead>
+              <TableHead className="pr-10 text-center text-[0.9rem] text-gray-600">Aksi</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {classData.length > 0 ? (
+              classData.map((item, index) => (
+                <TableRow key={item.id}>
+                  <TableCell className="pl-10 text-gray-800">{(currentPage - 1) * perPage + index + 1}</TableCell>
+                  <TableCell className="font-medium text-gray-900">{item.name}</TableCell>
+                  <TableCell className="text-gray-700">{item.level}</TableCell>
+                  <TableCell className="text-gray-700">{item.academic_year}</TableCell>
+                  <TableCell className="text-gray-700">{item.teacher_name || "-"}</TableCell>
+                  <TableCell className="text-gray-700">{new Date(item.created_at).toLocaleString()}</TableCell>
+                  <TableCell className="text-gray-700">{new Date(item.updated_at).toLocaleString()}</TableCell>
+                  <TableCell className="pr-10">
+                    <div className="flex items-center justify-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                        onClick={() => router.push(`/class/${item.id}/edit`)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                        onClick={handleDelete(item.id)}
+                        disabled={deletingId === item.id}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className="py-10 text-center text-sm text-slate-500">
+                  Tidak ada data kelas untuk ditampilkan.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   )
 }

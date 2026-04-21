@@ -5,6 +5,14 @@ import { useEffect, useEffectEvent, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
 import { searchClasses } from "@/src/app/_api/class"
 import { searchParents } from "@/src/app/_api/parent"
@@ -141,61 +149,66 @@ export default function EditStudentPage() {
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Edit Siswa</h1>
-      </div>
+    <div className="space-y-4">
+      <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+        <div className="border-b border-slate-200/70 p-5">
+          <h1 className="text-xl font-semibold text-slate-700">Edit Siswa</h1>
+        </div>
 
-      <div className="max-w-full rounded-lg border bg-white p-6 shadow-sm">
+        <div className="p-6">
         {pageError ? (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {pageError}
           </div>
         ) : null}
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Orang Tua</label>
-            <select
-              className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 space-y-2 md:col-span-6">
+            <Label className="text-gray-600">Orang Tua</Label>
+            <Select
               value={parentId}
-              onChange={(e) => {
-                setParentId(e.target.value)
+              onValueChange={(value) => {
+                setParentId(value)
                 handleCheckError("parent_id")
               }}
-              disabled={isLoading || isLoadingInitial}
             >
-              <option value="">Pilih orang tua</option>
-              {parents.map((parent) => (
-                <option key={parent.id} value={parent.id}>
-                  {parent.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger disabled={isLoading || isLoadingInitial}>
+                <SelectValue placeholder="Pilih orang tua" />
+              </SelectTrigger>
+              <SelectContent>
+                {parents.map((parent) => (
+                  <SelectItem key={parent.id} value={parent.id}>
+                    {parent.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Kelas</label>
-            <select
-              className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
+          <div className="col-span-12 space-y-2 md:col-span-6">
+            <Label className="text-gray-600">Kelas</Label>
+            <Select
               value={classId}
-              onChange={(e) => {
-                setClassId(e.target.value)
+              onValueChange={(value) => {
+                setClassId(value)
                 handleCheckError("class_id")
               }}
-              disabled={isLoading || isLoadingInitial}
             >
-              <option value="">Pilih kelas</option>
-              {classes.map((classItem) => (
-                <option key={classItem.id} value={classItem.id}>
-                  {classItem.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger disabled={isLoading || isLoadingInitial}>
+                <SelectValue placeholder="Pilih kelas" />
+              </SelectTrigger>
+              <SelectContent>
+                {classes.map((classItem) => (
+                  <SelectItem key={classItem.id} value={classItem.id}>
+                    {classItem.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Nama</label>
+          <div className="col-span-12 space-y-2 md:col-span-6">
+            <Label className="text-gray-600">Nama</Label>
             <Input
               value={name}
               onChange={(e) => {
@@ -207,38 +220,8 @@ export default function EditStudentPage() {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Gender</label>
-            <select
-              className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
-              value={gender}
-              onChange={(e) => {
-                setGender(e.target.value)
-                handleCheckError("gender")
-              }}
-              disabled={isLoading || isLoadingInitial}
-            >
-              <option value="">Pilih gender</option>
-              <option value="male">Laki-laki</option>
-              <option value="female">Perempuan</option>
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tanggal Lahir</label>
-            <Input
-              type="date"
-              value={birthDate}
-              onChange={(e) => {
-                setBirthDate(e.target.value)
-                handleCheckError("birth_date")
-              }}
-              disabled={isLoading || isLoadingInitial}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium">NISN</label>
+          <div className="col-span-12 space-y-2 md:col-span-6">
+            <Label className="text-gray-600">NISN</Label>
             <Input
               value={nisn}
               onChange={(e) => {
@@ -250,8 +233,40 @@ export default function EditStudentPage() {
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Foto</label>
+          <div className="col-span-12 space-y-2 md:col-span-6">
+            <Label className="text-gray-600">Gender</Label>
+            <Select
+              value={gender}
+              onValueChange={(value) => {
+                setGender(value)
+                handleCheckError("gender")
+              }}
+            >
+              <SelectTrigger disabled={isLoading || isLoadingInitial}>
+                <SelectValue placeholder="Pilih gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="male">Laki-laki</SelectItem>
+                <SelectItem value="female">Perempuan</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="col-span-12 space-y-2 md:col-span-6">
+            <Label className="text-gray-600">Tanggal Lahir</Label>
+            <Input
+              type="date"
+              value={birthDate}
+              onChange={(e) => {
+                setBirthDate(e.target.value)
+                handleCheckError("birth_date")
+              }}
+              disabled={isLoading || isLoadingInitial}
+            />
+          </div>
+
+          <div className="col-span-12 space-y-2">
+            <Label className="text-gray-600">Foto</Label>
             <Input
               type="file"
               accept="image/*"
@@ -272,7 +287,7 @@ export default function EditStudentPage() {
             ) : null}
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="col-span-12 flex gap-3 pt-2">
             <Button
               type="button"
               variant="outline"
@@ -285,11 +300,12 @@ export default function EditStudentPage() {
               type="button"
               onClick={handleUpdate}
               disabled={isLoading || isLoadingInitial}
-              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              className="bg-sky-500 text-white hover:bg-sky-600"
             >
               {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </div>
+        </div>
         </div>
       </div>
     </div>

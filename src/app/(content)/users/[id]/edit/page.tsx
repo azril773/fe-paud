@@ -5,6 +5,14 @@ import { useEffect, useEffectEvent, useMemo, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useAuth } from "@/hooks/use-auth"
 import { type Role, searchRoles } from "@/src/app/_api/role"
 import { getUserById, updateUser } from "@/src/app/_api/user"
@@ -122,24 +130,22 @@ export default function EditUserPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Edit User</h1>
-          <p className="mt-1 text-sm text-slate-600">Ubah data user melalui form berikut.</p>
+    <div className="space-y-4">
+      <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white/85 shadow-sm backdrop-blur-sm">
+        <div className="border-b border-slate-200/70 p-5">
+          <h1 className="text-xl font-semibold text-slate-700">Edit User</h1>
         </div>
-      </div>
 
-      {pageError ? (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {pageError}
-        </div>
-      ) : null}
+        <div className="p-6">
+        {pageError ? (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {pageError}
+          </div>
+        ) : null}
 
-      <div className="max-w-full rounded-lg border bg-white p-6 shadow-sm">
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nama</label>
+            <Label className="text-gray-600">Nama</Label>
             <Input
               value={name}
               onChange={(e) => {
@@ -153,7 +159,7 @@ export default function EditUserPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Email</label>
+            <Label className="text-gray-600">Email</Label>
             <Input
               type="email"
               value={email}
@@ -168,23 +174,25 @@ export default function EditUserPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Role</label>
-            <select
-              className="h-10 w-full rounded-md border border-slate-200 px-3 text-sm outline-none focus:border-slate-400"
+            <Label className="text-gray-600">Role</Label>
+            <Select
               value={roleId}
-              onChange={(e) => {
-                setRoleId(e.target.value)
+              onValueChange={(value) => {
+                setRoleId(value)
                 handleCheckError("role")
               }}
-              disabled={isLoading || isLoadingInitial}
             >
-              <option value="">Pilih role</option>
-              {roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger disabled={isLoading || isLoadingInitial}>
+                <SelectValue placeholder="Pilih role" />
+              </SelectTrigger>
+              <SelectContent>
+                {roles.map((role) => (
+                  <SelectItem key={role.id} value={role.id}>
+                    {role.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {error.role ? <p className="text-xs text-red-600">{error.role}</p> : null}
             {selectedRole ? (
               <p className="text-xs text-slate-500">Role terpilih: {selectedRole.name}</p>
@@ -192,7 +200,7 @@ export default function EditUserPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Password</label>
+            <Label className="text-gray-600">Password</Label>
             <Input
               type="password"
               value={password}
@@ -209,7 +217,7 @@ export default function EditUserPage() {
             {error.password ? <p className="text-xs text-red-600">{error.password}</p> : null}
           </div>
 
-          <div className="flex gap-3 border-t border-slate-200 pt-6">
+          <div className="flex gap-3 pt-4">
             <Button
               type="button"
               variant="outline"
@@ -222,11 +230,12 @@ export default function EditUserPage() {
               type="button"
               onClick={handleUpdate}
               disabled={isLoading || isLoadingInitial}
-              className="bg-emerald-600 text-white hover:bg-emerald-700"
+              className="bg-sky-500 text-white hover:bg-sky-600"
             >
               {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
             </Button>
           </div>
+        </div>
         </div>
       </div>
     </div>

@@ -6,33 +6,87 @@ import { getErrorMessage } from "@/src/utils"
 
 import { backendInstance } from "."
 
+
+type StudentStats = {
+  total_students: number
+  male_students: number
+  female_students: number
+}
+type StudentWithDetails = Student & {
+  parent_name: string
+  class_name: string
+}
+
 type GetStudentsResponse = {
-  students: Student[]
+  students: StudentWithDetails[]
   total: number
 }
 
-const API_URL = `${BASE_URL}/api/students`
-const ADMIN_API_URL = `${BASE_URL}/admin/api/students`
 
-export async function searchStudents({ token }: { token: string }): Promise<{
-  data: Student[]
+const API_URL = `${BASE_URL}/api/students`
+
+export async function searchStudents({
+  token,
+  page,
+  perPage,
+  search,
+}: {
+  token: string
+  page?: number
+  perPage?: number
+  search?: string
+}): Promise<{
+  data: StudentWithDetails[]
   totalPages: number
   error: string
 }> {
   try {
+    const effectivePerPage = perPage ?? 10
+    const params: Record<string, string | number> = {
+      page: page ?? 1,
+      per_page: effectivePerPage,
+    }
+    if (search) {
+      params.search = search
+    }
+
     const response = await backendInstance.get(API_URL, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      params,
     })
 
     const { students, total }: GetStudentsResponse = response.data
-    const totalPages = Math.ceil(total / 10)
+    const totalPages = Math.ceil(total / effectivePerPage)
 
     return { data: students, totalPages, error: "" }
   } catch (err) {
     const error = err as AxiosError
     return { data: [], totalPages: 0, error: getErrorMessage(error) }
+  }
+}
+
+export async function getStudentStats({
+  token,
+}: {
+  token: string
+}): Promise<{
+  data: StudentStats | null
+  error: string
+}> {
+  try {
+    const response = await backendInstance.get(`${API_URL}/stats`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    const data = response.data as StudentStats
+    return { data, error: "" }
+  } catch (err) {
+    const error = err as AxiosError
+    return { data: null, error: getErrorMessage(error) }
   }
 }
 
@@ -67,7 +121,7 @@ export async function createStudent({
       formData.append("photo", photo)
     }
 
-    const response = await backendInstance.post(ADMIN_API_URL, formData, {
+    const response = await backendInstance.post(API_URL, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -89,7 +143,7 @@ export async function getStudentById({
   studentId: string
 }): Promise<{ data: Student | null; error: string }> {
   try {
-    const response = await backendInstance.get(`${ADMIN_API_URL}/${studentId}`, {
+    const response = await backendInstance.get(`${API_URL}/${studentId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -136,7 +190,7 @@ export async function updateStudent({
       formData.append("photo", photo)
     }
 
-    await backendInstance.put(`${ADMIN_API_URL}/${studentId}`, formData, {
+    await backendInstance.put(`${API_URL}/${studentId}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -157,7 +211,7 @@ export async function deleteStudent({
   studentId: string
 }): Promise<{ error: string }> {
   try {
-    await backendInstance.delete(`${ADMIN_API_URL}/${studentId}`, {
+    await backendInstance.delete(`${API_URL}/${studentId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

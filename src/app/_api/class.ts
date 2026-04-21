@@ -12,22 +12,44 @@ type GetClassesResponse = {
 }
 
 const API_URL = `${BASE_URL}/api/classes`
-const ADMIN_API_URL = `${BASE_URL}/admin/api/classes`
 
-export async function searchClasses({ token }: { token: string }): Promise<{
+export async function searchClasses({
+  token,
+  page,
+  perPage,
+  search,
+}: {
+  token: string
+  page?: number
+  perPage?: number
+  search?: string
+}): Promise<{
   data: Class[]
   totalPages: number
   error: string
 }> {
   try {
+    const params: Record<string, string | number> = {}
+    let effectivePerPage = 10
+
+    if (typeof page === "number") {
+      effectivePerPage = perPage ?? 10
+      params.page = page
+      params.per_page = effectivePerPage
+    }
+    if (search) {
+      params.search = search
+    }
+
     const response = await backendInstance.get(API_URL, {
+      params,
       headers: {
         Authorization: `Bearer ${token}`,
       },
     })
 
     const { data, total }: GetClassesResponse = response.data
-    const totalPages = Math.ceil(total / 10)
+    const totalPages = Math.ceil(total / effectivePerPage)
 
     return { data, totalPages, error: "" }
   } catch (err) {
@@ -51,7 +73,7 @@ export async function createClass({
 }): Promise<{ data: Class | null; error: string }> {
   try {
     const response = await backendInstance.post(
-      ADMIN_API_URL,
+      API_URL,
       {
         teacher_id: teacherId,
         name,
@@ -81,7 +103,7 @@ export async function getClassById({
   classId: string
 }): Promise<{ data: Class | null; error: string }> {
   try {
-    const response = await backendInstance.get(`${ADMIN_API_URL}/${classId}`, {
+    const response = await backendInstance.get(`${API_URL}/${classId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -112,7 +134,7 @@ export async function updateClass({
 }): Promise<{ error: string }> {
   try {
     await backendInstance.put(
-      `${ADMIN_API_URL}/${classId}`,
+      `${API_URL}/${classId}`,
       {
         teacher_id: teacherId,
         name,
@@ -141,7 +163,7 @@ export async function deleteClass({
   classId: string
 }): Promise<{ error: string }> {
   try {
-    await backendInstance.delete(`${ADMIN_API_URL}/${classId}`, {
+    await backendInstance.delete(`${API_URL}/${classId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
