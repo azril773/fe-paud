@@ -19,6 +19,7 @@ export default function UsersPage() {
   const router = useRouter()
   const [searchInput, setSearchInput] = useState<string>("")
   const [debouncedSearch, setDebouncedSearch] = useState<string>("")
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const [stats, setStats] = useState<UserStats>({
     totalUsers: 0,
   })
@@ -29,7 +30,7 @@ export default function UsersPage() {
       return
     }
 
-    const { totalPages, error } = await searchUsers({
+    const { total, error } = await searchUsers({
       token,
       page: 1,
       perPage: 1,
@@ -40,7 +41,7 @@ export default function UsersPage() {
     }
 
     setStats({
-      totalUsers: totalPages,
+      totalUsers: total,
     })
   })
 
@@ -115,7 +116,11 @@ export default function UsersPage() {
           onCreateClick={() => router.push("/users/create")}
         />
 
-        <UserTable search={debouncedSearch} currentPage={1} />
+        <UserTable
+          search={debouncedSearch}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   )

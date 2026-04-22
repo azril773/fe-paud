@@ -1,6 +1,7 @@
 "use client"
 
 import { Edit, Trash2 } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useEffect, useEffectEvent, useState } from "react"
 
@@ -19,16 +20,22 @@ import { User } from "@/src/types/common"
 import { getAccessToken } from "@/src/utils/auth-token"
 import { notification } from "@/utils/toast"
 
+const DEFAULT_USER_IMAGE = "/logo.png"
+
+type UserRow = User & {
+    photo?: string | null
+}
+
 type UserTableProps = {
     search?: string
     currentPage: number
+    onPageChange: (page: number) => void
 }
 
-export default function UserTable({ search, currentPage: initialPage }: UserTableProps) {
+export default function UserTable({ search, currentPage, onPageChange }: UserTableProps) {
     const route = useRouter()
-    const [userData, setUserData] = useState<User[]>([])
+    const [userData, setUserData] = useState<UserRow[]>([])
     const [deletingId, setDeletingId] = useState<string>("")
-    const [currentPage, setCurrentPage] = useState<number>(initialPage || 1)
     const [totalPages, setTotalPages] = useState<number>(0)
     const perPage = 5
 
@@ -53,7 +60,7 @@ export default function UserTable({ search, currentPage: initialPage }: UserTabl
         setTotalPages(nextTotalPages)
 
         if (nextTotalPages > 0 && page > nextTotalPages) {
-            setCurrentPage(nextTotalPages)
+            onPageChange(nextTotalPages)
         }
     })
 
@@ -80,7 +87,7 @@ export default function UserTable({ search, currentPage: initialPage }: UserTabl
 
         notification("Sukses!", "User berhasil dihapus.", "success")
 		if (userData.length === 1 && currentPage > 1) {
-			setCurrentPage((prev) => prev - 1)
+			onPageChange(currentPage - 1)
 			return
 		}
 
@@ -88,8 +95,8 @@ export default function UserTable({ search, currentPage: initialPage }: UserTabl
     }
 
     useEffect(() => {
-        setCurrentPage(1)
-    }, [search])
+        onPageChange(1)
+    }, [search, onPageChange])
 
     useEffect(() => {
         loadData(currentPage)
@@ -102,6 +109,7 @@ export default function UserTable({ search, currentPage: initialPage }: UserTabl
                 <TableHeader>
                     <TableRow>
                         <TableHead className="pl-10 text-[0.9rem] text-gray-600">No</TableHead>
+                        <TableHead className="text-[0.9rem] text-gray-600">Foto</TableHead>
                         <TableHead className="text-[0.9rem] text-gray-600">Nama Users</TableHead>
                         <TableHead className="text-[0.9rem] text-gray-600">Email</TableHead>
                         <TableHead className="text-[0.9rem] text-gray-600">Role</TableHead>
@@ -115,6 +123,17 @@ export default function UserTable({ search, currentPage: initialPage }: UserTabl
                         userData.map((item, index) => (
                             <TableRow key={item.id}>
                                 <TableCell className="pl-10 text-gray-800">{(currentPage - 1) * perPage + index + 1}</TableCell>
+                                <TableCell>
+                                    <div className="h-10 w-10 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                                        <Image
+                                            src={item.photo || DEFAULT_USER_IMAGE}
+                                            alt={item.name}
+                                            width={40}
+                                            height={40}
+                                            className="h-10 w-10 object-cover"
+                                        />
+                                    </div>
+                                </TableCell>
                                 <TableCell className="font-medium text-gray-900">{item.name}</TableCell>
                                 <TableCell className="text-gray-700">{item.email}</TableCell>
                                 <TableCell className="text-gray-700">
@@ -149,7 +168,7 @@ export default function UserTable({ search, currentPage: initialPage }: UserTabl
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={7} className="py-10 text-center text-sm text-slate-500">
+                            <TableCell colSpan={8} className="py-10 text-center text-sm text-slate-500">
                                 Tidak ada data users untuk ditampilkan.
                             </TableCell>
                         </TableRow>
@@ -162,7 +181,7 @@ export default function UserTable({ search, currentPage: initialPage }: UserTabl
             <PaginationControls
                 currentPage={currentPage}
                 totalPages={totalPages}
-                onPageChange={setCurrentPage}
+                onPageChange={onPageChange}
             />
         </div>
     )

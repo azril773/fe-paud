@@ -12,6 +12,7 @@ type User = {
     email: string;
     role: string;
     role_name: string;
+    photo?: string | null;
     created_at: string;
     updated_at: string;
 }
@@ -44,19 +45,18 @@ export async function searchUsers({
     search?: string
 }) : Promise<{
     data: User[];
+    total: number;
     totalPages: number;
     error: string;
 }> {
     try {
-        const effectivePerPage = perPage ?? (typeof page === "number" ? 10 : undefined)
-        const params: Record<string, string | number> = {}
-        if (typeof page === "number") {
-            params.page = page
+        const effectivePerPage = perPage ?? 5
+        const params: Record<string, string | number> = {
+            page: page ?? 1,
+            per_page: effectivePerPage,
         }
-        if (typeof effectivePerPage === "number") {
-            params.per_page = effectivePerPage
-        }
-        if (search) {
+
+        if (search && search.trim()) {
             params.search = search
         }
 
@@ -68,10 +68,10 @@ export async function searchUsers({
         });
         const { users, total }: GetUsersResponse = response.data;
         const totalPages = effectivePerPage ? Math.ceil(total / effectivePerPage) : 0;
-        return { data: users, totalPages, error: "" };   
+        return { data: users, total, totalPages, error: "" };   
     } catch (err) {
         const error = err as AxiosError;
-        return { data: [], totalPages: 0, error: getErrorMessage(error) };
+        return { data: [], total: 0, totalPages: 0, error: getErrorMessage(error) };
     }
 }
 
