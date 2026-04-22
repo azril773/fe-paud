@@ -6,10 +6,10 @@ import {
 
 import { Route } from "@/types/common"
 
-export const DOMAIN = process.env.DOMAIN || "sipintar.com:3002"
-export const BASE_URL = process.env.BASE_URL || "http://sipintar.com:8080"
-export const HTTP_SECURE = process.env.HTTP_SECURE
-  ? process.env.HTTP_SECURE === "true"
+export const DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || "sipintar.com:3002"
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://sipintar.com:8080"
+export const HTTP_SECURE = process.env.NEXT_PUBLIC_HTTP_SECURE
+  ? process.env.NEXT_PUBLIC_HTTP_SECURE === "true"
   : false
 export const ACTIVE = "active"
 export const SUSPENDED = "suspended"
