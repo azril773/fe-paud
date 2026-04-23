@@ -1,10 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 import { BASE_URL, UNAUTHORIZED_CODE } from "@/constants/common";
-import { cookies } from "@/src/utils";
 import { notification } from "@/src/utils/toast";
 
-import { refreshToken } from "./auth";
+import { logout, refreshToken } from "./auth";
 
 interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -26,20 +25,18 @@ backendInstance.interceptors.response.use(
         config._retry = true;
         const { data, error } = await refreshToken();
         if (error) {
-          cookies.remove("access_token");
+          await logout();
           notification("Sesi Berakhir", "Silakan login kembali.", "error");
-          window.location.href = "/login";
+          window.location.href = `${process.env.NEXT_PUBLIC_HTTP_SECURE === "true" ? "https" : "http"}://${process.env.NEXT_PUBLIC_DOMAIN}/login`;
           throw error;
         }
-        cookies.set("access_token", data?.access_token || "", {
-          path: "/",
-        });
-        config.headers.Authorization = `Bearer ${data?.access_token}`;
+        const token = data?.access_token ?? ''
+        config.headers.Authorization = `Bearer ${token}`;
         return backendInstance(config);
       }else{
-        cookies.remove("access_token");
+        await logout();
         notification("Sesi Berakhir", "Silakan login kembali.", "error");
-        window.location.href = "/login";
+        window.location.href = `${process.env.NEXT_PUBLIC_HTTP_SECURE === "true" ? "https" : "http"}://${process.env.NEXT_PUBLIC_DOMAIN}/login`;
         throw error
       }
     }

@@ -9,7 +9,7 @@ export function proxy(req: NextRequest) {
   }
   if (!req.cookies.has("access_token") || req.cookies.get("access_token")?.value === "") {
     req.cookies.delete("access_token");
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL(`${req.nextUrl.pathname}${req.nextUrl.search}`, `${process.env.NEXT_PUBLIC_HTTP_SECURE === "true" ? "https" : "http"}://${process.env.NEXT_PUBLIC_DOMAIN}/login`));
   }
 }
 

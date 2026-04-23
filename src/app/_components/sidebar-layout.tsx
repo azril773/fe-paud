@@ -34,8 +34,9 @@ import {
 } from "@/components/ui/sidebar"
 import { useAuth } from "@/hooks/use-auth"
 import { routes } from "@/src/constants/common"
-import { clearAccessToken } from "@/src/utils/auth-token"
 import { notification } from "@/src/utils/toast"
+
+import { logout } from "../_api/auth"
 
 const USER_MANAGEMENT_HREFS = ["/users"]
 const MASTER_DATA_HREFS = ["/class", "/parent", "/student", "/teacher"]
@@ -93,9 +94,13 @@ export default function SidebarLayout() {
   })
 
   const handleLogout = async () => {
-    clearAccessToken()
+    const {error} = await logout()
+    if (error.length > 0) {
+      notification("Gagal Logout", error, "error")
+      return
+    }
     notification("Sukses!", "Anda berhasil logout.", "success")
-    router.replace("/login")
+    router.replace(`${process.env.NEXT_PUBLIC_HTTP_SECURE === "true" ? "https" : "http"}://${process.env.NEXT_PUBLIC_DOMAIN}/login`)
   }
   return (
     <Sidebar variant="inset" className="border-none">
